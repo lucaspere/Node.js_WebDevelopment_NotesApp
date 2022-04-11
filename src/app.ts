@@ -1,7 +1,16 @@
-import * as http from 'http';
+import Fastify from "fastify";
+import fastifyCors from "fastify-cors";
+import api from './routes'
+import { server } from './server';
 
-const server = http.createServer((req, res) => {
-    res.end('<h1>Init</h1>');
+export const app = Fastify({
+    logger: {
+        prettyPrint: true,
+        level: 'info',
+    },
 });
 
-server.listen(3000);
+app.register(fastifyCors);
+app.register(api, { prefix: 'api' })
+
+server(app);
