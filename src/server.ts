@@ -1,16 +1,59 @@
-import { FastifyInstance } from "fastify";
-const PORT = process.env.PORT || "3000";
+import { FastifyInstance } from 'fastify';
+import { inspect } from 'util';
+const PORT = process.env.PORT || '3000';
 
-export const server = async (server: FastifyInstance) => {
-    try {
-        await server.listen(PORT, '::');
+export class AppExecutor {
+    constructor(private app: FastifyInstance) {}
 
-        const address = server.server.address();
-        const port = typeof address === 'string' ? address : address?.port;
+    async run(): Promise<FastifyInstance> {
+        await this.prepare();
+        await this.start();
 
-        console.log(`Server is running at port ${port}`);
-    } catch(err) {
-        server.log.error(err);
-        process.exit(1);
+        return this.app;
+    }
+
+    private async prepare() {
+        try {
+            this.app.log.info('Loading the plugin...');
+            await this.app.ready();
+            this.app.log.info('Plugins loaded successfully.');
+        } catch (err) {
+            throw Error(
+                `Failed to load plugins: ${inspect(errorParser(err as Error))}`,
+            );
+        }
+    }
+
+    public async start(): Promise<string> {
+        try {
+            this.app.log.info('Starting the server...');
+            const address = await this.app.listen(PORT);
+
+            return address;
+        } catch (err) {
+            throw Error(
+                `Failed to start the server: ${inspect(
+                    errorParser(err as Error),
+                )}`,
+            );
+        }
+    }
+
+    async close(): Promise<void> {
+        try {
+            this.app.log.info('Closing the server...');
+            await this.app.close();
+        } catch (err) {
+            throw Error(
+                `Failed to close the server: ${inspect(
+                    errorParser(err as Error),
+                )}`,
+            );
+        }
     }
 }
+
+const errorParser = (err: Error) => ({
+    name: err.name,
+    msg: err.message,
+});

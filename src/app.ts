@@ -1,7 +1,9 @@
-import Fastify from "fastify";
-import fastifyCors from "fastify-cors";
-import api from './routes'
-import { server } from './server';
+import Fastify from 'fastify';
+import fastifyCors from 'fastify-cors';
+import fastifySwagger from 'fastify-swagger';
+import { SwaggerConfig } from './docs';
+import api from './routes';
+import { AppExecutor } from './server';
 
 export const app = Fastify({
     logger: {
@@ -10,7 +12,18 @@ export const app = Fastify({
     },
 });
 
+app.register(fastifySwagger, SwaggerConfig);
 app.register(fastifyCors);
-app.register(api, { prefix: 'api' })
+app.register(api, { prefix: 'api' });
 
-server(app);
+async function main() {
+    const appExecutor = new AppExecutor(app);
+    try {
+        await appExecutor.run();
+    } catch (err) {
+        app.log.error(err);
+        process.exit(1);
+    }
+}
+
+main();
