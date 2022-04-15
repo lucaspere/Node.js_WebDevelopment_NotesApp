@@ -32,7 +32,7 @@ export const notesRouter: FastifyPluginAsync = async app => {
         try {
             const note = Note.from_JSON(JSON.stringify(req.body));
             NoteRepo.create(note);
-            res.status(201).send();
+            res.status(201);
         } catch (err) {
             req.log.error(
                 `Fails in create Note with payload: ${inspect(req.body)}`,

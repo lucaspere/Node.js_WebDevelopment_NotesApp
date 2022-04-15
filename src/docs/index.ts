@@ -1,48 +1,14 @@
-import { SwaggerOptions } from 'fastify-swagger';
+import { FastifyInstance } from 'fastify';
+import {
+    NoteResponseSchema,
+    NoteSchema,
+    NoteUpdateSchema,
+} from './NoteSchemas';
 
 export * as NoteRouteSchema from './NoteSchemas';
 
-export const SwaggerConfig: SwaggerOptions = {
-    routePrefix: '/documentation',
-    openapi: {
-        info: {
-            title: 'Test swagger',
-            description: 'Testing the Fastify swagger API',
-            version: '0.1.0',
-        },
-        externalDocs: {
-            url: 'https://swagger.io',
-            description: 'Find more info here',
-        },
-        servers: [
-            {
-                url: 'http://localhost:3000',
-            },
-        ],
-        tags: [{ name: 'Note', description: 'Note related end-points' }],
-        components: {
-            securitySchemes: {
-                apiKey: {
-                    type: 'apiKey',
-                    name: 'apiKey',
-                    in: 'header',
-                },
-            },
-        },
-    },
-    uiConfig: {
-        docExpansion: 'full',
-        deepLinking: false,
-    },
-    uiHooks: {
-        onRequest: function (request, reply, next) {
-            next();
-        },
-        preHandler: function (request, reply, next) {
-            next();
-        },
-    },
-    staticCSP: true,
-    transformStaticCSP: header => header,
-    exposeRoute: true,
+export const defineSchemas = (app: FastifyInstance): void => {
+    app.addSchema(NoteSchema);
+    app.addSchema(NoteResponseSchema);
+    app.addSchema(NoteUpdateSchema);
 };

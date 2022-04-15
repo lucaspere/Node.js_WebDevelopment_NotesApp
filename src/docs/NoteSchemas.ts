@@ -1,6 +1,35 @@
 import { FastifySchema } from 'fastify';
 import { FastifyRouteSchemaDef } from 'fastify/types/schema';
 
+export const NoteSchema = {
+    $id: 'Note',
+    description: 'The `Note` object definition',
+    type: 'object',
+    required: ['title', 'description'],
+    properties: {
+        title: { type: 'string' },
+        description: { type: 'string' },
+    },
+};
+export const NoteResponseSchema = {
+    $id: 'NoteResponse',
+    description: 'Response object of `Note` resource',
+    type: 'object',
+    required: ['id', 'title', 'description'],
+    properties: {
+        id: { type: 'string' },
+        title: { type: 'string' },
+        description: { type: 'string' },
+    },
+};
+
+export const NoteUpdateSchema = {
+    $id: 'NoteUpdate',
+    description: 'Response object of `Note` resource',
+    type: 'object',
+    properties: NoteSchema.properties,
+};
+
 const getNoteByIdSchema: FastifySchema = {
     description:
         'This URI retrieves a `Note` resource according to the `id` parameter',
@@ -17,13 +46,7 @@ const getNoteByIdSchema: FastifySchema = {
     },
     response: {
         200: {
-            description: 'Succesful response',
-            type: 'object',
-            properties: {
-                id: { type: 'string' },
-                title: { type: 'string' },
-                description: { type: 'string' },
-            },
+            $ref: NoteResponseSchema.$id,
         },
     },
 };
@@ -40,11 +63,7 @@ const listNotesSchema: FastifySchema = {
                 notes: {
                     type: 'array',
                     items: {
-                        type: 'object',
-                        properties: {
-                            title: { type: 'string' },
-                            description: { type: 'string' },
-                        },
+                        $ref: NoteResponseSchema.$id,
                     },
                 },
             },
@@ -57,11 +76,7 @@ const createNoteSchema: FastifySchema = {
     tags: ['Note'],
     summary: 'Save a new `Note`',
     body: {
-        type: 'object',
-        properties: {
-            title: { type: 'string' },
-            description: { type: 'string' },
-        },
+        $ref: NoteSchema.$id,
     },
     response: {
         201: {
@@ -73,7 +88,7 @@ const createNoteSchema: FastifySchema = {
 
 const updateNoteByIdSchema: FastifySchema = {
     description:
-        'This URI retrieves a `Note` resource according to the `id` parameter',
+        'This URI updates a `Note` resource according to the `id` parameter',
     tags: ['Note'],
     summary: 'Query a `Note` by its `Id',
     params: {
@@ -85,21 +100,20 @@ const updateNoteByIdSchema: FastifySchema = {
             },
         },
     },
+    body: {
+        $ref: NoteUpdateSchema.$id,
+    },
     response: {
-        200: {
+        204: {
             description: 'Succesful response',
             type: 'object',
-            properties: {
-                title: { type: 'string' },
-                description: { type: 'string' },
-            },
         },
     },
 };
 
 const deleteNoteSchema: FastifySchema = {
     description:
-        'This URI retrieves a `Note` resource according to the `id` parameter',
+        'This URI deletes a `Note` resource according to the `id` parameter',
     tags: ['Note'],
     summary: 'Query a `Note` by its `Id',
     params: {
@@ -107,18 +121,15 @@ const deleteNoteSchema: FastifySchema = {
         properties: {
             id: {
                 type: 'string',
+                format: 'uuid',
                 description: 'The note identifier',
             },
         },
     },
     response: {
-        200: {
+        204: {
             description: 'Succesful response',
             type: 'object',
-            properties: {
-                title: { type: 'string' },
-                description: { type: 'string' },
-            },
         },
     },
 };
