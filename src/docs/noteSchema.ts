@@ -1,29 +1,31 @@
 import { FastifySchema } from 'fastify';
 import { FastifyRouteSchemaDef } from 'fastify/types/schema';
-import { NoteResponseSchema, NoteSchema, NoteUpdateSchema } from './schemas';
+import { uuid_id } from './commons';
 
-const getNoteByIdSchema: FastifySchema = {
-    description:
-        'This URI retrieves a `Note` resource according to the `id` parameter',
-    tags: ['Note'],
-    summary: 'Query a `Note` by its `Id',
+export const noteSchema = {
+    title: { type: 'string', minLength: 5, maxLength: 40 },
+    description: { type: 'string', minLength: 10, maxLength: 100 },
+};
+
+const getNoteById: FastifySchema = {
+    description: 'Retrieves a `Note` resource according to the `id` parameter',
+    tags: ['note'],
+    summary: 'Find a note by its ID',
+    operationId: 'getNoteById',
     params: {
         type: 'object',
         properties: {
-            id: {
-                type: 'string',
-                description: 'The note identifier',
-            },
+            id: uuid_id,
         },
     },
     response: {
         200: {
-            $ref: NoteResponseSchema.$id,
+            $ref: 'NoteResponse',
         },
     },
 };
 
-const listNotesSchema: FastifySchema = {
+const listNotes: FastifySchema = {
     description: 'This URI retrieves all `Notes` resource',
     tags: ['Note'],
     summary: 'get all `Notes`',
@@ -35,7 +37,7 @@ const listNotesSchema: FastifySchema = {
                 notes: {
                     type: 'array',
                     items: {
-                        $ref: NoteResponseSchema.$id,
+                        $ref: 'NoteResponse',
                     },
                 },
             },
@@ -43,12 +45,12 @@ const listNotesSchema: FastifySchema = {
     },
 };
 
-const createNoteSchema: FastifySchema = {
+const createNote: FastifySchema = {
     description: 'This URI creates a `Note` to persist in DB',
     tags: ['Note'],
     summary: 'Save a new `Note`',
     body: {
-        $ref: NoteSchema.$id,
+        $ref: 'Note',
     },
     response: {
         201: {
@@ -58,7 +60,7 @@ const createNoteSchema: FastifySchema = {
     },
 };
 
-const updateNoteByIdSchema: FastifySchema = {
+const updateNoteById: FastifySchema = {
     description:
         'This URI updates a `Note` resource according to the `id` parameter',
     tags: ['Note'],
@@ -66,14 +68,11 @@ const updateNoteByIdSchema: FastifySchema = {
     params: {
         type: 'object',
         properties: {
-            id: {
-                type: 'string',
-                description: 'The note identifier',
-            },
+            id: uuid_id,
         },
     },
     body: {
-        $ref: NoteUpdateSchema.$id,
+        $ref: 'NoteUpdate',
     },
     response: {
         204: {
@@ -83,7 +82,7 @@ const updateNoteByIdSchema: FastifySchema = {
     },
 };
 
-const deleteNoteSchema: FastifySchema = {
+const deleteNote: FastifySchema = {
     description:
         'This URI deletes a `Note` resource according to the `id` parameter',
     tags: ['Note'],
@@ -91,11 +90,7 @@ const deleteNoteSchema: FastifySchema = {
     params: {
         type: 'object',
         properties: {
-            id: {
-                type: 'string',
-                format: 'uuid',
-                description: 'The note identifier',
-            },
+            id: uuid_id,
         },
     },
     response: {
@@ -106,37 +101,28 @@ const deleteNoteSchema: FastifySchema = {
     },
 };
 
-export const getNoteByIdSchemaDef: FastifyRouteSchemaDef<
-    typeof getNoteByIdSchema
-> = {
-    schema: getNoteByIdSchema,
+export const getNoteByIdDef: FastifyRouteSchemaDef<typeof getNoteById> = {
+    schema: getNoteById,
     method: 'getNoteById',
     url: '',
 };
-export const listNotesSchemaDef: FastifyRouteSchemaDef<typeof listNotesSchema> =
-    {
-        schema: listNotesSchema,
-        method: 'listNotes',
-        url: '',
-    };
-export const createNoteSchemaDef: FastifyRouteSchemaDef<
-    typeof createNoteSchema
-> = {
-    schema: createNoteSchema,
+export const listNotesDef: FastifyRouteSchemaDef<typeof listNotes> = {
+    schema: listNotes,
+    method: 'listNotes',
+    url: '',
+};
+export const createNoteDef: FastifyRouteSchemaDef<typeof createNote> = {
+    schema: createNote,
     method: 'createNote',
     url: '',
 };
-export const updateNoteByIdSchemaDef: FastifyRouteSchemaDef<
-    typeof updateNoteByIdSchema
-> = {
-    schema: updateNoteByIdSchema,
+export const updateNoteByIDef: FastifyRouteSchemaDef<typeof updateNoteById> = {
+    schema: updateNoteById,
     method: 'UpdateNoteById',
     url: '',
 };
-export const deleteNoteByIdSchemaDef: FastifyRouteSchemaDef<
-    typeof deleteNoteSchema
-> = {
-    schema: deleteNoteSchema,
+export const deleteNoteByIdDef: FastifyRouteSchemaDef<typeof deleteNote> = {
+    schema: deleteNote,
     method: 'deleteNoteById',
     url: '',
 };
