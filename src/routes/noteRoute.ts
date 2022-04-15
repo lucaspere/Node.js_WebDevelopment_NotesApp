@@ -4,31 +4,48 @@ import { inspect } from 'util';
 import { NoteRouteSchema } from '../docs';
 import { Note } from '../models/Note';
 import { NoteRepositry } from '../repository/NoteRepository';
+import { uuid } from '../docs/commons';
+import { note } from '../docs/noteSchema';
 
 const NoteRepo = new NoteRepositry();
-const {
-    getNoteByIdSchemaDef,
-    createNoteSchemaDef,
-    deleteNoteByIdSchemaDef,
-    updateNoteByIdSchemaDef,
-    listNotesSchemaDef,
-} = NoteRouteSchema;
+
+const NoteSchema = {
+    $id: 'Note',
+    description: 'The `Note` object definition',
+    type: 'object',
+    required: ['title', 'description'],
+    properties: note,
+};
+
+const NoteResponseSchema = {
+    $id: 'NoteResponse',
+    description: 'Response object of `Note` resource',
+    type: 'object',
+    required: ['id', 'title', 'description'],
+    properties: {
+        ...note,
+        id: uuid,
+    },
+};
 
 export const notesRouter: FastifyPluginAsync = async app => {
-    app.get('/:id', getNoteByIdSchemaDef, async (req, res) => {
+    app.addSchema(NoteSchema);
+    app.addSchema(NoteResponseSchema);
+
+    app.get('/:id', NoteRouteSchema.getNoteByIdDef, async (req, res) => {
         const params = req.params as { id: string };
         const note = NoteRepo.find(params.id);
 
         res.send(note);
     });
 
-    app.get('/', listNotesSchemaDef, async (req, res) => {
+    app.get('/', NoteRouteSchema.listNotesDef, async (req, res) => {
         const notes = NoteRepo.list();
 
         res.send({ notes });
     });
 
-    app.post('/', createNoteSchemaDef, async (req, res) => {
+    app.post('/', NoteRouteSchema.createNoteDef, async (req, res) => {
         try {
             const note = Note.from_JSON(JSON.stringify(req.body));
             NoteRepo.create(note);
@@ -41,7 +58,7 @@ export const notesRouter: FastifyPluginAsync = async app => {
         }
     });
 
-    app.patch('/:id', updateNoteByIdSchemaDef, async (req, res) => {
+    app.patch('/:id', NoteRouteSchema.updateNoteByIDef, async (req, res) => {
         const { id } = req.params as { id: string };
         const payload = req.body as Partial<Note>;
 
@@ -50,7 +67,7 @@ export const notesRouter: FastifyPluginAsync = async app => {
         res.status(204).send();
     });
 
-    app.delete('/:id', deleteNoteByIdSchemaDef, async (req, res) => {
+    app.delete('/:id', NoteRouteSchema.deleteNoteByIdDef, async (req, res) => {
         const { id } = req.params as { id: string };
 
         NoteRepo.delete(id);

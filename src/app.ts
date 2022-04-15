@@ -1,7 +1,6 @@
 import Fastify from 'fastify';
 import fastifyCors from 'fastify-cors';
 import fastifySwagger from 'fastify-swagger';
-import { defineSchemas } from './docs';
 import api from './routes';
 import { AppExecutor } from './server';
 import { SwaggerConfig } from './swaggerConfig';
@@ -17,7 +16,6 @@ async function main() {
     app.register(fastifySwagger, SwaggerConfig);
     app.register(fastifyCors);
     app.register(api, { prefix: 'api' });
-    defineSchemas(app);
 
     const appExecutor = new AppExecutor(app);
     try {

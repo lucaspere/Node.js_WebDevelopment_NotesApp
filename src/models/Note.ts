@@ -45,24 +45,8 @@ export class Note {
 
     static from_JSON(json: string): Note {
         const note = JSON.parse(json);
-        const errors = [];
 
-        if (typeof note !== 'object')
-            errors.push(new Error('Invalid Note Object'));
-        else {
-            if (typeof note.title !== 'string')
-                errors.push(
-                    new Error('Invalid {title} type. Expected a string'),
-                );
-            if (typeof note.description !== 'string')
-                errors.push(
-                    new Error('Invalid {description} type. Expected a string'),
-                );
-        }
-
-        if (errors.length !== 0)
-            throw errors.map(error => ({ code: 400, msg: error.message }));
-        else return new Note(note.title, note.description);
+        return new Note(note.title, note.description);
     }
 
     to_JSON(): string {
