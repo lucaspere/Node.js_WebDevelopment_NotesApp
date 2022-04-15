@@ -14,10 +14,10 @@ export const app = Fastify({
 });
 
 async function main() {
-    defineSchemas(app);
     app.register(fastifySwagger, SwaggerConfig);
     app.register(fastifyCors);
     app.register(api, { prefix: 'api' });
+    defineSchemas(app);
 
     const appExecutor = new AppExecutor(app);
     try {
