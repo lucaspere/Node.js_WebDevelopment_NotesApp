@@ -13,9 +13,9 @@ lerna-debug.log*
 
 *.sqlite3
 *.sqlite3-*
-
 db.sqlite3
 
+*.ldb
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -126,4 +126,6 @@ dist
 # Config
 /config/*.env
 
+# leveldb
+src/**/level
 # End of https://www.toptal.com/developers/gitignore/api/node
