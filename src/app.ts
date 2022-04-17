@@ -1,29 +1,34 @@
-import Fastify from 'fastify';
+import Fastify, { FastifyInstance, FastifyServerOptions } from 'fastify';
 import fastifyCors from 'fastify-cors';
 import fastifySwagger from 'fastify-swagger';
 import api from './routes';
-import { AppExecutor } from './server';
+import { Server } from './server';
 import { SwaggerConfig } from './swaggerConfig';
 
-export const app = Fastify({
-    logger: {
-        prettyPrint: true,
-        level: 'info',
+export const app = (
+    opts: FastifyServerOptions = {
+        logger: {
+            prettyPrint: true,
+            level: 'info',
+        },
+        ajv: {
+            customOptions: {
+                allErrors: true,
+            },
+        },
     },
-});
+): FastifyInstance => {
+    const app = Fastify(opts);
 
-async function main() {
     app.register(fastifySwagger, SwaggerConfig);
     app.register(fastifyCors);
     app.register(api, { prefix: 'api' });
 
-    const appExecutor = new AppExecutor(app);
-    try {
-        await appExecutor.run();
-    } catch (err) {
-        app.log.error(err);
-        process.exit(1);
-    }
-}
+    return app;
+};
 
-main();
+const server = app();
+new Server(server).run().catch(err => {
+    server.log.error(err);
+    process.exit(1);
+});

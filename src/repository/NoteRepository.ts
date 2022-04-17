@@ -1,42 +1,34 @@
 import { Note } from '../models/Note';
 import { Repository } from './Repository';
 
-const notesMock = [
-    {
-        id: '1',
-        title: 'Dishonored',
-        description: 'Melhor Game da vida',
-    },
-    {
-        id: '2',
-        title: 'Cyberpunk',
-        description: 'Melhor jogo da vida',
-    },
-];
+const notes: Note[] = [];
 
-let count = 3;
 export class NoteRepositry implements Repository<Note> {
-    create(note: Note): void {
-        notesMock.push(Object.assign({}, note, { id: String(count++) }));
+    create(note: Note): Note {
+        notes.push(note);
+        return notes[notes.length - 1] as Note;
     }
     find(id: string): Note | undefined {
-        const note = notesMock.find(note => note.id === id);
+        const note = notes.find(note => note.id === id);
         if (note) return Note.from_JSON(JSON.stringify(note));
     }
     list(): Note[] {
-        return notesMock.map(note => Note.from_JSON(JSON.stringify(note)));
+        return notes.map(note => Note.from_JSON(JSON.stringify(note)));
     }
-    update(id: string, payload: Partial<Note>): void {
-        const noteIdx = notesMock.findIndex(note => note.id === id);
-        const noteUpdated = {
-            ...notesMock[noteIdx],
-            ...payload,
-        };
-        notesMock[noteIdx] = Note.from_JSON(JSON.stringify(noteUpdated));
-    }
-    delete(id: string): void {
-        const noteIdx = notesMock.findIndex(note => note.id === id);
+    update(id: string, payload: Partial<Note>): Note | undefined {
+        const noteIdx = notes.findIndex(note => note.id === id);
+        if (noteIdx !== -1) {
+            const noteUpdated = {
+                ...notes[noteIdx],
+                ...payload,
+            };
+            notes[noteIdx] = Note.from_JSON(JSON.stringify(noteUpdated));
 
-        notesMock.splice(noteIdx, 1);
+            return notes[noteIdx];
+        }
+    }
+    delete(id: string): Note | undefined {
+        const noteIdx = notes.findIndex(note => note.id === id);
+        if (noteIdx !== -1) return notes.splice(noteIdx, 1)[0];
     }
 }

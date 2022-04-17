@@ -1,11 +1,12 @@
+import { v4 as uuid } from 'uuid';
+
 export class Note {
-    static id_seq = 0;
-    constructor(title: string, description: string) {
+    constructor(title: string, description: string, id?: string) {
         Object.defineProperties(this, {
             id: {
-                enumerable: false,
+                enumerable: true,
                 configurable: true,
-                value: Note.id_seq++,
+                value: id ? id : uuid(),
                 writable: false,
             },
             title: {
@@ -46,7 +47,7 @@ export class Note {
     static from_JSON(json: string): Note {
         const note = JSON.parse(json);
 
-        return new Note(note.title, note.description);
+        return new Note(note.title, note.description, note.id);
     }
 
     to_JSON(): string {

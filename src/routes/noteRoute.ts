@@ -1,11 +1,11 @@
 /* eslint-disable require-await */
 import { FastifyPluginAsync } from 'fastify';
-import { inspect } from 'util';
 import { NoteRouteSchema } from '../docs';
 import { Note } from '../models/Note';
 import { NoteRepositry } from '../repository/NoteRepository';
 import { uuid } from '../docs/commons';
 import { note } from '../docs/noteSchema';
+import { AddressInfo } from 'net';
 
 const NoteRepo = new NoteRepositry();
 
@@ -36,7 +36,8 @@ export const notesRouter: FastifyPluginAsync = async app => {
         const params = req.params as { id: string };
         const note = NoteRepo.find(params.id);
 
-        res.send(note);
+        if (!note) res.status(404).send();
+        else res.send(note);
     });
 
     app.get('/', NoteRouteSchema.listNotesDef, async (req, res) => {
@@ -44,34 +45,32 @@ export const notesRouter: FastifyPluginAsync = async app => {
 
         res.send({ notes });
     });
+    //f2831124-5b14-4520-9fbd-e213be151e4d
+    app.post('/', NoteRouteSchema.createNoteDef, (req, res) => {
+        const newNote = Note.from_JSON(JSON.stringify(req.body));
+        const note = NoteRepo.create(newNote);
+        const { address, port } = app.server.address() as AddressInfo;
 
-    app.post('/', NoteRouteSchema.createNoteDef, async (req, res) => {
-        try {
-            const note = Note.from_JSON(JSON.stringify(req.body));
-            NoteRepo.create(note);
-            res.status(201);
-        } catch (err) {
-            req.log.error(
-                `Fails in create Note with payload: ${inspect(req.body)}`,
-            );
-            res.status(400).send({ errors: err });
-        }
+        // TODO: Creates a response handler
+        res.header('location', `${address}:${port}/api/notes/${note.id}`);
+        res.status(201).send();
     });
 
     app.patch('/:id', NoteRouteSchema.updateNoteByIDef, async (req, res) => {
         const { id } = req.params as { id: string };
         const payload = req.body as Partial<Note>;
 
-        NoteRepo.update(id, payload);
+        const note = NoteRepo.update(id, payload);
 
-        res.status(204).send();
+        if (!note) res.status(404).send();
+        else res.status(204).send();
     });
 
     app.delete('/:id', NoteRouteSchema.deleteNoteByIdDef, async (req, res) => {
         const { id } = req.params as { id: string };
 
-        NoteRepo.delete(id);
-
+        const note = NoteRepo.delete(id);
+        if (!note) res.status(404).send();
         res.status(204).send();
     });
 };

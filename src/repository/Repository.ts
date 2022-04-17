@@ -1,7 +1,7 @@
 export interface Repository<T> {
-    create(payload: T): void;
+    create(payload: T): T;
     find(id: string): T | undefined;
     list(): T[];
-    update(id: string, payload: T): void;
-    delete(id: string): void;
+    update(id: string, payload: T): T | undefined;
+    delete(id: string): T | undefined;
 }

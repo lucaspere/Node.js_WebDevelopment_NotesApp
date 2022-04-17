@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import { inspect } from 'util';
 const PORT = process.env.PORT || '3000';
 
-export class AppExecutor {
+export class Server {
     constructor(private app: FastifyInstance) {}
 
     async run(): Promise<FastifyInstance> {
@@ -12,11 +12,13 @@ export class AppExecutor {
         return this.app;
     }
 
-    private async prepare() {
+    private async prepare(): Promise<Server> {
         try {
             this.app.log.info('Loading the plugin...');
             await this.app.ready();
             this.app.log.info('Plugins loaded successfully.');
+
+            return this;
         } catch (err) {
             throw Error(
                 `Failed to load plugins: ${inspect(errorParser(err as Error))}`,
@@ -24,7 +26,7 @@ export class AppExecutor {
         }
     }
 
-    public async start(): Promise<string> {
+    private async start(): Promise<string> {
         try {
             this.app.log.info('Starting the server...');
             const address = await this.app.listen(PORT);
