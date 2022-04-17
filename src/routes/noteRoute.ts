@@ -1,13 +1,12 @@
-/* eslint-disable require-await */
 import { FastifyPluginAsync } from 'fastify';
 import { NoteRouteSchema } from '../docs';
 import { Note } from '../models/Note';
-import { NoteRepositry } from '../repository/NoteRepository';
+import { NoteMemoryRepository } from '../repository/NoteMemory';
 import { uuid } from '../docs/commons';
 import { note } from '../docs/noteSchema';
 import { AddressInfo } from 'net';
 
-const NoteRepo = new NoteRepositry();
+const NoteRepo = new NoteMemoryRepository();
 
 const NoteSchema = {
     $id: 'Note',
@@ -28,27 +27,28 @@ const NoteResponseSchema = {
     },
 };
 
+// eslint-disable-next-line require-await
 export const notesRouter: FastifyPluginAsync = async app => {
     app.addSchema(NoteSchema);
     app.addSchema(NoteResponseSchema);
 
     app.get('/:id', NoteRouteSchema.getNoteByIdDef, async (req, res) => {
         const params = req.params as { id: string };
-        const note = NoteRepo.find(params.id);
+        const note = await NoteRepo.find(params.id);
 
         if (!note) res.status(404).send();
         else res.send(note);
     });
 
     app.get('/', NoteRouteSchema.listNotesDef, async (req, res) => {
-        const notes = NoteRepo.list();
+        const notes = await NoteRepo.list();
 
         res.send({ notes });
     });
     //f2831124-5b14-4520-9fbd-e213be151e4d
-    app.post('/', NoteRouteSchema.createNoteDef, (req, res) => {
+    app.post('/', NoteRouteSchema.createNoteDef, async (req, res) => {
         const newNote = Note.from_JSON(JSON.stringify(req.body));
-        const note = NoteRepo.create(newNote);
+        const note = await NoteRepo.create(newNote);
         const { address, port } = app.server.address() as AddressInfo;
 
         // TODO: Creates a response handler
@@ -60,7 +60,7 @@ export const notesRouter: FastifyPluginAsync = async app => {
         const { id } = req.params as { id: string };
         const payload = req.body as Partial<Note>;
 
-        const note = NoteRepo.update(id, payload);
+        const note = await NoteRepo.update(id, payload);
 
         if (!note) res.status(404).send();
         else res.status(204).send();
@@ -69,7 +69,7 @@ export const notesRouter: FastifyPluginAsync = async app => {
     app.delete('/:id', NoteRouteSchema.deleteNoteByIdDef, async (req, res) => {
         const { id } = req.params as { id: string };
 
-        const note = NoteRepo.delete(id);
+        const note = await NoteRepo.delete(id);
         if (!note) res.status(404).send();
         res.status(204).send();
     });

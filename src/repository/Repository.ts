@@ -1,7 +1,8 @@
 export interface Repository<T> {
-    create(payload: T): T;
-    find(id: string): T | undefined;
-    list(): T[];
-    update(id: string, payload: T): T | undefined;
-    delete(id: string): T | undefined;
+    clear(): Promise<void>;
+    create(payload: T): Promise<T>;
+    find(id: string): Promise<T | undefined>;
+    list(): Promise<T[]>;
+    update(id: string, payload: T): Promise<T | undefined>;
+    delete(id: string): Promise<T | undefined>;
 }
