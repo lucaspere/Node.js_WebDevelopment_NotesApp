@@ -1,0 +1,29 @@
+{
+    "check-coverage": true,
+    "extends": "@istanbuljs/nyc-config-typescript",
+    "all": true,
+    "cache": true,
+    "exclude": [
+        "src/swaggerConfig.ts",
+        "**/index.ts"
+    ],
+    "watermarks": {
+        "lines": [
+            85,
+            95
+        ],
+        "functions": [
+            85,
+            95
+        ],
+        "branches": [
+            85,
+            95
+        ],
+        // The individual "blocks of code"
+        "statements": [
+            85,
+            95
+        ]
+    }
+}

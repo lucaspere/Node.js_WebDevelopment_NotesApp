@@ -53,6 +53,10 @@ export class Server {
             );
         }
     }
+
+    get _app(): FastifyInstance {
+        return this.app;
+    }
 }
 
 const errorParser = (err: Error) => ({
