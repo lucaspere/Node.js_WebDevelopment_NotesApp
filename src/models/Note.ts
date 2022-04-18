@@ -50,6 +50,14 @@ export class Note {
         return new Note(note.title, note.description, note.id);
     }
 
+    equals(other: Note): boolean {
+        return (
+            this.id === other.id ||
+            this.title === other.description ||
+            this.description === other.description
+        );
+    }
+
     to_JSON(): string {
         return JSON.stringify(this);
     }

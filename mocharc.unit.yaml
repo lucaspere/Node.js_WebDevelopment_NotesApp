@@ -1,0 +1,14 @@
+---
+extension:
+    - ts
+spec: tests/**/*.test.ts
+require:
+    - ts-node/register
+    - dotenv/config
+recursive: true
+fail-zero: true
+exit: true
+ui: tdd
+ignore:
+    - tests/app.test.ts
+    - tests/server.test.ts

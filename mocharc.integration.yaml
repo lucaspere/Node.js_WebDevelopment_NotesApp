@@ -1,0 +1,17 @@
+---
+extension:
+    - ts
+spec: tests/**/*.test.ts
+require:
+    - ts-node/register
+    - dotenv/config
+    - source-map-support/register
+ui: bdd
+file:
+    - tests/app.test.ts
+    - tests/server.test.ts
+ignore:
+    - tests/**/**
+recursive: true
+fail-zero: true
+exit: true

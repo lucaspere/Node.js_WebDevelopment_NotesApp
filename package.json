@@ -10,8 +10,13 @@
         "start": "node dist/app.js",
         "build": "tsc",
         "dev": "ts-node-dev --inspect -r dotenv/config src/app.ts",
-        "test": "TEST_PORT=3001 mocha",
-        "coverage": "nyc npm run test"
+        "test": "npm run test:integration && npm run test:unit",
+        "test:unit": "LEVELDB_LOCATION=notes.level.test mocha --config mocharc.unit.yaml",
+        "test:integration": "TEST_PORT=3001 mocha --config mocharc.integration.yaml",
+        "cover": "npm run cover:unit && npm run cover:integration && npm run cover:report",
+        "cover:unit": "nyc npm run test:unit",
+        "cover:integration": "nyc --silent --no-clean npm run test:integration",
+        "cover:report": "nyc report --reporter=lcov"
     },
     "author": "Lucas Pereira",
     "license": "ISC",
