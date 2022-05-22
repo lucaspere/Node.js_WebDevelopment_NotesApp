@@ -1,6 +1,6 @@
-import { FastifyError } from 'fastify';
+import { ValidationResult } from 'fastify';
 import { BaseError } from './BaseError';
-import { ERRORS_NAMES, HTTPErrors } from './HTTPErros';
+import { ERRORS_NAMES, HTTPErrors, ErrorFormat } from './HTTPErros';
 
 export type Details = {
     field: string;
@@ -12,16 +12,17 @@ export type AppError = {
     name: ERRORS_NAMES | string;
     message: string;
     statusCode: number;
-    details: Details[] | undefined;
+    details: Details[];
 };
 
-export const buildValidationError = (
-    error: FastifyError & { validationContext?: string },
+export const buildError = (
+    type: ErrorFormat,
+    error: ValidationResult[] & { validationContext?: string },
 ): AppError => ({
-    name: HTTPErrors.VALIDATION_ERROR.name,
-    message: HTTPErrors.VALIDATION_ERROR.type,
-    statusCode: HTTPErrors.VALIDATION_ERROR.code,
-    details: error.validation?.map(err => ({
+    name: type.name,
+    message: type.type,
+    statusCode: type.code,
+    details: error.map(err => ({
         field: `${err.dataPath}`,
         description: err.message,
         location: error.validationContext,
@@ -29,9 +30,7 @@ export const buildValidationError = (
 });
 
 export const buildNotFoundError = (
-    error: BaseError,
-    id: string,
-    path: string,
+    error: BaseError & { id: string; path: string },
 ): AppError => ({
     ...error,
     message: HTTPErrors.RESOURCE_NOT_FOUND.type,
@@ -39,7 +38,7 @@ export const buildNotFoundError = (
         {
             field: '/id',
             description: error.message,
-            location: path,
+            location: error.path,
         },
     ],
 });
